@@ -1,6 +1,7 @@
 param (
     # Database info parameters    
     [string]$connectionString,
+    [string]$databaseName,
     [string]$testOrClassName = "",
 
     # Test Result parameters
@@ -23,10 +24,9 @@ Write-Output "Running the tSQLt tests and getting Code Coverage..."
 
 $connectionStringBuilder = New-Object System.Data.Common.DbConnectionStringBuilder
 $connectionStringBuilder.set_ConnectionString($connectionString)
-$database = $connectionStringBuilder["initial catalog"]
-Write-Output "Database set to $database"
+Write-Output "Database set to $databaseName"
 
-$coverage = new-object SQLCover.CodeCoverage($connectionString, $database, $null, $true, $false, [SQLCover.Trace.TraceControllerType]::Azure)
+$coverage = new-object SQLCover.CodeCoverage($connectionString, $databaseName, $null, $true, $false, [SQLCover.Trace.TraceControllerType]::Azure)
 
 $startResult = $coverage.Start()
 
@@ -52,16 +52,15 @@ $coverageResults.SaveSourceFiles($openCoverSourceFolder)
 Write-Output "Successfully saved source code to $openCoverSourceFolder"
 
 Write-Output "Converting OpenCover to Cobertura results..."
-
 $coberturaConverterToolPath = Join-Path -Path $PSScriptRoot -ChildPath "dependencies\opencovertocoberturaconverter\OpenCoverToCoberturaConverter.exe"
 $argsList = "-input:$openCoverXmlFile -output:$coberturaFileName -sources:$openCoverSourceFolder -includeGettersSetters:true"
 
 Start-Process -FilePath $coberturaConverterToolPath -ArgumentList $argsList -NoNewWindow -Wait
 Write-Output "Finished converting OpenCover to Cobertura. File available at $coberturaFileName"
 
-Write-Output "Generating Azure Pipelines report from Cobertura results..."
-$reportGeneratorToolPath = Join-Path -Path $PSScriptRoot -ChildPath "dependencies\reportgenerator\ReportGenerator.exe"
-$argsList = "-reports:$coberturaFileName -targetDir:$htmlReportsOutput -reporttype:HtmlInline_AzurePipelines -sourcedirs:$openCoverSourceFolder -assemblyfilters:+* -classfilters:+* -filefilters:+* -verbosity:Verbose"
+# Write-Output "Generating Azure Pipelines report from Cobertura results..."
+# $reportGeneratorToolPath = Join-Path -Path $PSScriptRoot -ChildPath "dependencies\reportgenerator\ReportGenerator.exe"
+# $argsList = "-reports:$coberturaFileName -targetDir:$htmlReportsOutput -reporttype:HtmlInline_AzurePipelines -sourcedirs:$openCoverSourceFolder -assemblyfilters:+* -classfilters:+* -filefilters:+* -verbosity:Verbose"
 
-Start-Process -FilePath $reportGeneratorToolPath -ArgumentList $argsList -NoNewWindow -Wait
-Write-Output "Finished generating Azure Pipelines report at $htmlReportsOutput"
+# Start-Process -FilePath $reportGeneratorToolPath -ArgumentList $argsList -NoNewWindow -Wait
+# Write-Output "Finished generating Azure Pipelines report at $htmlReportsOutput"

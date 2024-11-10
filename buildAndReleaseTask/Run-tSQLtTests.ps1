@@ -3,6 +3,8 @@ param (
     [Parameter(Mandatory=$true)]
     [string]$connectionString,
     [Parameter(Mandatory=$true)]
+    [string]$databaseName,    
+    [Parameter(Mandatory=$true)]
     [string]$queryTimeout = "60",
 
     # Test execution parameters
@@ -30,7 +32,7 @@ if(!$workingDirectory) {
 # Dependencies are then embeded to the extension VSIX
 # . .\InstallDependencies.ps1 -installDirectory $workingDirectory
 
-. .\Install-Dependencies.ps1
+# . .\Install-Dependencies.ps1
 
 $ErrorActionPreference = "Continue"
 
@@ -97,14 +99,16 @@ function Invoke-TestExecution {
 function Invoke-TestExecutionWithCodeCoverage {
     param (
         [Parameter(Mandatory=$true)]
+        [string]$connectionString,
+        [Parameter(Mandatory=$true)]
+        [string]$databaseName,
+        [Parameter(Mandatory=$true)]
+        [string]$rootOutput,
+        [Parameter(Mandatory=$true)]
         [string]$runAllTests,
         [Parameter(Mandatory=$true)]
         [AllowEmptyString()]
         [string]$testOrClassName,
-        [Parameter(Mandatory=$true)]
-        [string]$connectionString,
-        [Parameter(Mandatory=$true)]
-        [string]$rootOutput,
         [Parameter(Mandatory=$true)]
         [string]$testResultsFileName,
         [Parameter(Mandatory=$true)]
@@ -129,44 +133,51 @@ function Invoke-TestExecutionWithCodeCoverage {
     if($runAllTests -eq "true" -Or $testOrClassName -eq "") {
         Write-Output "Running all tests because either runAllTests is set to true or testOrClassName is empty"
         
-        . .\Invoke-tSQLtTestsWithCodeCoverage.ps1 -connectionString $connectionString `
-        -rootOutput $rootOutput `
-        -testResultsFileName $testResultsFileName `
-        -queryTimeout $queryTimeout `
-        -openCoverSourceFolder $openCoverSourceFolder `
-        -openCoverXmlFile $openCoverXmlFile `
-        -coberturaFileName $coberturaFileName `
-        -htmlReportsOutput $htmlReportsOutput `
+        . .\Invoke-tSQLtTestsWithCodeCoverage.ps1 `
+            -connectionString $connectionString `
+            -databaseName $databaseName `
+            -rootOutput $rootOutput `
+            -testResultsFileName $testResultsFileName `
+            -queryTimeout $queryTimeout `
+            -openCoverSourceFolder $openCoverSourceFolder `
+            -openCoverXmlFile $openCoverXmlFile `
+            -coberturaFileName $coberturaFileName `
+            -htmlReportsOutput $htmlReportsOutput
     }
     else {
-        . .\Invoke-tSQLtTestsWithCodeCoverage.ps1 -connectionString $connectionString `
-        -rootOutput $rootOutput `
-        -testOrClassName $testOrClassName `
-        -testResultsFileName $testResultsFileName `
-        -queryTimeout $queryTimeout `
-        -openCoverSourceFolder $openCoverSourceFolder `
-        -openCoverXmlFile $openCoverXmlFile `
-        -coberturaFileName $coberturaFileName `
-        -htmlReportsOutput $htmlReportsOutput `
+        . .\Invoke-tSQLtTestsWithCodeCoverage.ps1 `
+            -connectionString $connectionString `
+            -databaseName $databaseName `
+            -rootOutput $rootOutput `
+            -testOrClassName $testOrClassName `
+            -testResultsFileName $testResultsFileName `
+            -queryTimeout $queryTimeout `
+            -openCoverSourceFolder $openCoverSourceFolder `
+            -openCoverXmlFile $openCoverXmlFile `
+            -coberturaFileName $coberturaFileName `
+            -htmlReportsOutput $htmlReportsOutput
     }
 }
 
 if ($enableCodeCoverage -eq "false") {
-    Invoke-TestExecution -runAllTests $runAllTests `
-    -testOrClassName $testOrClassName `
-    -connectionString $connectionString `
-    -rootOutput $rootOutput `
-    -testResultsFileName $testResultsFileName `
-    -queryTimeout $queryTimeout
+    Invoke-TestExecution `
+        -runAllTests $runAllTests `
+        -testOrClassName $testOrClassName `
+        -connectionString $connectionString `
+        -rootOutput $rootOutput `
+        -testResultsFileName $testResultsFileName `
+        -queryTimeout $queryTimeout
 }
 else {
-    Invoke-TestExecutionWithCodeCoverage -runAllTests $runAllTests `
-    -testOrClassName $testOrClassName `
-    -connectionString $connectionString `
-    -rootOutput $rootOutput `
-    -testResultsFileName $testResultsFileName `
-    -queryTimeout $queryTimeout `
-    -openCoverSourceFolder $openCoverSourceFolder `
-    -coberturaFileName $coberturaFileName `
-    -htmlReportsOutput $htmlReportsOutput
+    Invoke-TestExecutionWithCodeCoverage `
+        -runAllTests $runAllTests `
+        -testOrClassName $testOrClassName `
+        -connectionString $connectionString `
+        -databaseName $databaseName `
+        -rootOutput $rootOutput `
+        -testResultsFileName $testResultsFileName `
+        -queryTimeout $queryTimeout `
+        -openCoverSourceFolder $openCoverSourceFolder `
+        -coberturaFileName $coberturaFileName `
+        -htmlReportsOutput $htmlReportsOutput
 }
