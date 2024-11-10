@@ -58,9 +58,9 @@ $argsList = "-input:$openCoverXmlFile -output:$coberturaFileName -sources:$openC
 Start-Process -FilePath $coberturaConverterToolPath -ArgumentList $argsList -NoNewWindow -Wait
 Write-Output "Finished converting OpenCover to Cobertura. File available at $coberturaFileName"
 
-# Write-Output "Generating Azure Pipelines report from Cobertura results..."
-# $reportGeneratorToolPath = Join-Path -Path $PSScriptRoot -ChildPath "dependencies\reportgenerator\ReportGenerator.exe"
-# $argsList = "-reports:$coberturaFileName -targetDir:$htmlReportsOutput -reporttype:HtmlInline_AzurePipelines -sourcedirs:$openCoverSourceFolder -assemblyfilters:+* -classfilters:+* -filefilters:+* -verbosity:Verbose"
+Write-Output "Generating Azure Pipelines report from Cobertura results..."
+$reportGeneratorToolPath = Join-Path -Path $PSScriptRoot -ChildPath "dependencies\reportgenerator\ReportGenerator.exe"
+$argsList = "-reports:$coberturaFileName -targetDir:$htmlReportsOutput -reporttype:HtmlInline_AzurePipelines -sourcedirs:$openCoverSourceFolder -assemblyfilters:+* -classfilters:+* -filefilters:+* -verbosity:Verbose"
 
-# Start-Process -FilePath $reportGeneratorToolPath -ArgumentList $argsList -NoNewWindow -Wait
-# Write-Output "Finished generating Azure Pipelines report at $htmlReportsOutput"
+Start-Process -FilePath $reportGeneratorToolPath -ArgumentList $argsList -NoNewWindow -Wait
+Write-Output "Finished generating Azure Pipelines report at $htmlReportsOutput"

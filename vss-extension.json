@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "RunTSqltTests",
     "name": "Run tSQLt Tests (Sonar)",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "publisher": "insightfactoryai",
     "description": "Run tSQLt tests and extract the results, including optional code coverage.",
     "targets": [
